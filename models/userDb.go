@@ -123,6 +123,32 @@ func AddUser(user *User) Response {
 
 }
 
+func UpdateUser(user *User) Response {
+	db, err := sql.Open("mysql", dbuser+":"+dbpass+"@tcp(127.0.0.1:3306)/"+dbname)
+
+	if err != nil {
+		panic(err.Error())
+	}
+	defer db.Close()
+	sqlstm := fmt.Sprintf("UPDATE users SET name = '%s', email = '%s', password = '%s', phone_number = '%s', updated_at = now() WHERE id = '%s'",
+		user.Name, user.Email, user.Password, user.PhoneNumber, user.Id)
+	update, err := db.Query(sqlstm)
+
+	if err != nil {
+		return Response{
+			StatusCode: http.StatusInternalServerError,
+			Error:      err,
+		}
+	}
+	defer update.Close()
+
+	return Response{
+		StatusCode: http.StatusOK,
+		Message:    "UPDATE_SUCCESS",
+	}
+
+}
+
 func DeleteUser(id string) Response {
 	db, err := sql.Open("mysql", dbuser+":"+dbpass+"@tcp(127.0.0.1:3306)/"+dbname)
 
