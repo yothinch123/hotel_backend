@@ -1,0 +1,48 @@
+version: '3.8'
+services:
+  db:
+    image: mysql:8.0
+    container_name: mysql
+    environment:
+      MYSQL_ROOT_PASSWORD: rootpassword
+      MYSQL_DATABASE: hotel_booking
+      MYSQL_USER: user
+      MYSQL_PASSWORD: password
+    ports:
+      - "3306:3306"
+    volumes:
+      - db_data:/var/lib/mysql
+
+  # backend:
+  #   build:
+  #     context: ./backend
+  #     dockerfile: Dockerfile
+  #   container_name: backend_container
+  #   volumes:
+  #     - ./backend:/app          # แมปโฟลเดอร์ backend ในเครื่องเข้ากับ container
+  #     - /app/node_modules       # ป้องกัน node_modules ใน container ถูกทับ
+  #   ports:
+  #     - "9000:9000"
+  #   environment:
+  #     DB_HOST: db
+  #     DB_USER: user
+  #     DB_PASSWORD: password
+  #     DB_NAME: hotel_booking
+  #   depends_on:
+  #     - db
+
+  # frontend:
+  #   build:
+  #     context: ./frontend
+  #     dockerfile: Dockerfile
+  #   container_name: frontend_container
+  #   volumes:
+  #     - ./frontend:/app         # แมปโฟลเดอร์ frontend ในเครื่องเข้ากับ container
+  #     - /app/node_modules       # ป้องกัน node_modules ใน container ถูกทับ
+  #   ports:
+  #     - "3000:3000"
+  #   depends_on:
+  #     - backend
+
+volumes:
+  db_data:
