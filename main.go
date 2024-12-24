@@ -1,15 +1,20 @@
 package main
 
 import (
+	"database/sql"
+	"log"
 	"net/http"
+	"os"
 
 	"go_backend/models"
 
 	"github.com/gin-gonic/gin"
+	"github.com/joho/godotenv"
 )
 
 func main() {
 	r := gin.Default()
+	initDB()
 
 	// Define routes for user API
 	r.GET("/users", GetUsers)
@@ -19,6 +24,29 @@ func main() {
 	r.DELETE("/users/:id", DeleteUser)
 
 	r.Run(":8080")
+}
+
+var db *sql.DB
+
+func initDB() {
+	err := godotenv.Load()
+
+	dbHose := os.Getenv("DB_HOST")
+	dbUser := os.Getenv("DB_USER")
+	dbPass := os.Getenv("DB_PASS")
+	dbName := os.Getenv("DB_NAME")
+	dsn := dbUser + ":" + dbPass + "@tcp(" + dbHose + ":3306)/" + dbName
+	db, err = sql.Open("mysql", dsn)
+
+	if err != nil {
+		log.Fatalf("Error connecting to database: %s", err)
+	}
+
+	// Test connection to the database
+	if err := db.Ping(); err != nil {
+		log.Fatalf("Error testing database connection: %s", err)
+	}
+	log.Println("Database connection established")
 }
 
 // Get all users
