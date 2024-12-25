@@ -1,14 +1,15 @@
 package main
 
 import (
-	"database/sql"
 	"log"
 	"net/http"
 	"os"
 
+	"go_backend/config"
 	"go_backend/models"
 
 	"github.com/gin-gonic/gin"
+	"github.com/jinzhu/gorm"
 	"github.com/joho/godotenv"
 )
 
@@ -26,8 +27,6 @@ func main() {
 	r.Run(":8080")
 }
 
-var db *sql.DB
-
 func initDB() {
 	err := godotenv.Load()
 
@@ -35,30 +34,31 @@ func initDB() {
 	dbUser := os.Getenv("DB_USER")
 	dbPass := os.Getenv("DB_PASS")
 	dbName := os.Getenv("DB_NAME")
-	dsn := dbUser + ":" + dbPass + "@tcp(" + dbHose + ":3306)/" + dbName
-	db, err = sql.Open("mysql", dsn)
+	dsn := dbUser + ":" + dbPass + "@tcp(" + dbHose + ":3306)/" + dbName + "?parseTime=true"
+	config.DB, err = gorm.Open("mysql", dsn)
+
+	config.DB.AutoMigrate(&models.User{})
 
 	if err != nil {
 		log.Fatalf("Error connecting to database: %s", err)
 	}
-
 	// Test connection to the database
-	if err := db.Ping(); err != nil {
-		log.Fatalf("Error testing database connection: %s", err)
-	}
 	log.Println("Database connection established")
 }
 
 // Get all users
 func GetUsers(c *gin.Context) {
-	users := models.GetAllUsers()
+	var user []models.User
+
+	users := models.GetAllUsers(&user)
 	c.JSON(http.StatusOK, users)
 }
 
 // Get a single user by ID
 func GetUserByID(c *gin.Context) {
+	var userdb models.User
 	id := c.Param("id")
-	user := models.GetUser(id)
+	user := models.GetUser(&userdb, id)
 
 	c.JSON(http.StatusOK, user)
 }
@@ -89,8 +89,9 @@ func UpdateUser(c *gin.Context) {
 
 // Delete a user
 func DeleteUser(c *gin.Context) {
+	var userdb models.User
 	id := c.Param("id")
-	res := models.DeleteUser(id)
+	res := models.DeleteUser(&userdb, id)
 
 	c.JSON(
 		res.StatusCode,
