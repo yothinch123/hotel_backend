@@ -7,26 +7,25 @@ import (
 	_ "github.com/go-sql-driver/mysql"
 )
 
-type User struct {
+type Room struct {
 	Id          string `json:"id"`
-	Name        string `json:"name"`
-	Email       string `json:"email"`
-	Password    string `json:"password"`
-	PhoneNumber string `json:"phone_number"`
+	RoomNumber  string `json:"room_number"`
+	RoomTypeId  string `json:"room_type_id"`
+	IsAvailable string `json:"is_available"`
 }
 
-func (b *User) TableName() string {
-	return "users"
+func (b *Room) TableName() string {
+	return "rooms"
 }
 
-func GetAllUsers(u *[]User) []User {
+func GetAllRooms(u *[]Room) []Room {
 	if err := config.DB.Debug().Find(u).Error; err != nil {
 		return *u
 	}
 	return *u
 }
 
-func GetUser(u *User, id string) User {
+func GetRoom(u *Room, id string) Room {
 	u.Id = id
 	if err := config.DB.First(u).Error; err != nil {
 		return *u
@@ -35,7 +34,7 @@ func GetUser(u *User, id string) User {
 	return *u
 }
 
-func AddUser(user *User) config.Response {
+func AddRoom(user *Room) config.Response {
 	result := config.DB.Create(&user)
 	if result.Error != nil {
 		return config.Response{
@@ -50,36 +49,32 @@ func AddUser(user *User) config.Response {
 	}
 }
 
-func UpdateUser(user *User, id string) config.Response {
-	userUpdate := User{}
-	if user.Name != "" {
-		userUpdate.Name = user.Name
+func UpdateRoom(user *Room, id string) config.Response {
+	userUpdate := Room{}
+	if user.RoomNumber != "" {
+		userUpdate.RoomNumber = user.RoomNumber
 	}
-	if user.Email != "" {
-		userUpdate.Email = user.Email
+	if user.RoomTypeId != "" {
+		userUpdate.RoomTypeId = user.RoomTypeId
 	}
-	if user.Password != "" {
-		userUpdate.Password = user.Password
+	if user.IsAvailable != "" {
+		userUpdate.IsAvailable = user.IsAvailable
 	}
-	if user.PhoneNumber != "" {
-		userUpdate.PhoneNumber = user.PhoneNumber
-	}
-	result := config.DB.Debug().Model(&User{}).Where("id = ?", id).Updates(userUpdate)
+	result := config.DB.Debug().Model(&Room{}).Where("id = ?", id).Updates(userUpdate)
 	if result.Error != nil {
 		return config.Response{
 			StatusCode: http.StatusInternalServerError,
 			Message:    "UPDATED_FAILED",
 		}
 	}
-
 	return config.Response{
 		StatusCode: http.StatusOK,
 		Message:    "UPDATED_SUCCESS",
 	}
 }
 
-func DeleteUser(user *User, id string) config.Response {
-	result := config.DB.Debug().Delete(&User{}, id)
+func DeleteRoom(user *Room, id string) config.Response {
+	result := config.DB.Debug().Delete(&Room{}, id)
 
 	if result.Error != nil {
 		return config.Response{
