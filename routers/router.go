@@ -22,6 +22,12 @@ func SetupRouter() *gin.Engine {
 		v1.POST("/room", controllers.CreateRoom)
 		v1.PUT("/room/:id", controllers.UpdateRoom)
 		v1.DELETE("/room/:id", controllers.DeleteRoom)
+
+		v1.GET("/room-type", controllers.GetRoomType)
+		v1.GET("/room-type/:id", controllers.GetRoomTypeByID)
+		v1.POST("/room-type", controllers.CreateRoomType)
+		v1.PUT("/room-type/:id", controllers.UpdateRoomType)
+		v1.DELETE("/room-type/:id", controllers.DeleteRoomType)
 	}
 
 	return r
