@@ -1,9 +1,5 @@
 package models
 
-import (
-	"github.com/jinzhu/gorm"
-)
-
 type UserResponse struct {
 	Id          string `json:"id"`
 	Name        string `json:"name"`
@@ -15,7 +11,6 @@ type UserResponse struct {
 }
 
 type User struct {
-	gorm.Model
 	Id          string `json:"id"`
 	Name        string `json:"name"`
 	Email       string `json:"email"`

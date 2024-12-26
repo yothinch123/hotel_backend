@@ -1,6 +1,7 @@
 package models
 
 import (
+	"fmt"
 	"go_backend/config"
 	"net/http"
 
@@ -12,10 +13,9 @@ const dbpass = "password"
 const dbname = "hotel_booking"
 
 func GetAllUsers(u *[]User) []User {
-	if err := config.DB.Find(u).Error; err != nil {
+	if err := config.DB.Debug().Find(u).Error; err != nil {
 		return *u
 	}
-
 	return *u
 }
 
@@ -43,9 +43,21 @@ func AddUser(user *User) Response {
 	}
 }
 
-func UpdateUser(user *User) Response {
-	result := config.DB.Model(&User{}).Where("id = ?", user.Id).Updates(user)
-
+func UpdateUser(user *User, id string) Response {
+	userUpdate := User{}
+	if user.Name != "" {
+		userUpdate.Name = user.Name
+	}
+	if user.Email != "" {
+		userUpdate.Email = user.Email
+	}
+	if user.Password != "" {
+		userUpdate.Password = user.Password
+	}
+	if user.PhoneNumber != "" {
+		userUpdate.PhoneNumber = user.PhoneNumber
+	}
+	result := config.DB.Debug().Model(&User{}).Where("id = ?", id).Updates(userUpdate)
 	if result.Error != nil {
 		return Response{
 			StatusCode: http.StatusInternalServerError,
@@ -60,12 +72,16 @@ func UpdateUser(user *User) Response {
 }
 
 func DeleteUser(user *User, id string) Response {
-	result := config.DB.Delete(&user)
+	result := config.DB.Debug().Delete(&User{}, id)
+
+	fmt.Println(result.Error)
+	fmt.Println(result.RowsAffected)
 
 	if result.Error != nil {
 		return Response{
 			StatusCode: http.StatusInternalServerError,
 			Message:    "DELETE_FAILED",
+			Error:      result.Error,
 		}
 	}
 
